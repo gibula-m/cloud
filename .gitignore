@@ -1,0 +1,15 @@
+tube/build/
+tube/node_modules/**/*
+tube/package-lock.json
+
+ms1/build/
+ms1/node_modules/**/*
+ms1/package-lock.json
+
+ms2/build/
+ms2/node_modules/**/*
+ms2/package-lock.json
+
+hub/build/
+hub/node_modules/**/*
+hub/package-lock.json

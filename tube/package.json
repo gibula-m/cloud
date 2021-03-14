@@ -1,0 +1,16 @@
+{
+  "name": "@bakkchos/tube",
+  "version": "0.0.1",
+  "description": "Communication in microservices",
+  "main": "build/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "author": "Bakkchos",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "typescript": "^4.2.3"
+  }
+}
