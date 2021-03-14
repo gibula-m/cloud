@@ -4,6 +4,7 @@ import express from "express";
 import * as appController from "./controller/app";
 import { handle } from "./util/handler";
 import bp from "body-parser";
+import { initializeDatabase } from "./lib/database";
 
 dotenv.config();
 
@@ -12,6 +13,9 @@ app.use(bp.json());
 
 app.post("/register/:id", handle(appController.register));
 
-app.listen(3000, () => {
-  logger(LogTypes.INFO, "App start on 3000");
+initializeDatabase().then(() => {
+  logger(LogTypes.INFO, "Database initilized");
+  app.listen(3000, () => {
+    logger(LogTypes.INFO, "App start on 3000");
+  });
 });

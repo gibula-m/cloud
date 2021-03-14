@@ -7,4 +7,7 @@ logger(LogTypes.INFO, process.env.APP_NAME!);
 
 const hub = new Hub("http://localhost:3000/", process.env.APP_NAME!);
 
-hub.register(map);
+hub.register(map).then((res) => {
+  logger(LogTypes.INFO, "Service registred");
+  logger(LogTypes.DEBUG, JSON.stringify(res));
+});

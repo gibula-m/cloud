@@ -1,4 +1,5 @@
 import { Request } from "express";
+import { registerService } from "../repositories/service";
 import { IRegisterBody, IResponse } from "../types/api";
 
 export const register = async (
@@ -6,7 +7,7 @@ export const register = async (
 ): Promise<IResponse<IRegisterBody>> => {
   const service = req.params.id;
   const features = req.body;
-  console.log(features);
+  const result = await registerService(service, features);
   return {
     status: 200,
     body: {
