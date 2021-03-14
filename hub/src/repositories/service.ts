@@ -1,4 +1,4 @@
-import { getConnection } from "typeorm";
+import { Connection, getConnection } from "typeorm";
 import { Feature } from "../entities/feature";
 import { Service } from "../entities/service";
 
@@ -40,4 +40,21 @@ export const registerService = async (
     });
     featureRepository.remove(entity!);
   }
+  return true;
+};
+
+export const getAllServices = async (db: Connection) => {
+  return (await db.getRepository(Service).find({ isActive: true })).map(
+    (elem) => elem.name
+  );
+};
+
+export const getAllFeatures = async (db: Connection, name: string) => {
+  const service = await db.getRepository(Service).findOne({ name: name });
+  if (service === undefined) {
+    return false;
+  }
+  return (
+    await db.getRepository(Feature).find({ service: service, isActive: true })
+  ).map((elem) => elem.name);
 };
