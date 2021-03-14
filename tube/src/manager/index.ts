@@ -10,5 +10,4 @@ export default class Broker {
   async init() {
     this.connection = await amqp.connect(this.url);
   }
-  get(name: string) {}
 }
