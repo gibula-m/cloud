@@ -1,5 +1,6 @@
-import amqp, { Channel, Connection } from "amqplib";
+import amqp, { Channel, Connection, ConsumeMessage } from "amqplib";
 import axios from "axios";
+import { resolve } from "bluebird";
 import { v4 as uuidv4 } from "uuid";
 export default class Tube {
   private url: string;
@@ -17,8 +18,27 @@ export default class Tube {
   }
   async init() {
     this.connection = await amqp.connect(this.url);
-    this.channel = await this.connection.createChannel();
-    this.queue = await this.channel.assertQueue(this.QUEUE_PREFIX + this.sn);
+    this.channel = await this.connection.createConfirmChannel();
+  }
+  async publish(msg: Payload) {
+    const data = { data: msg, correlationId: uuidv4() };
+    this.queue = await this.channel!.assertQueue(data.correlationId);
+    this.channel?.sendToQueue(
+      data.correlationId,
+      Buffer.from(JSON.stringify(data))
+    );
+    return await new Promise((resolve) => {
+      this.channel?.consume(
+        data.correlationId,
+        (msg: ConsumeMessage | null) => {
+          if (msg) {
+            this.channel?.deleteQueue(data.correlationId);
+            const result = JSON.parse(msg.content.toString());
+            resolve(result.data);
+          }
+        }
+      );
+    });
   }
 }
 
@@ -43,4 +63,10 @@ export class Hub {
       }
     );
   }
+}
+
+export interface Payload {}
+export interface PingPongPayload extends Payload {
+  ping?: boolean;
+  pong?: boolean;
 }

@@ -1,6 +1,6 @@
 {
   "name": "@bakkchos/tube",
-  "version": "0.0.13",
+  "version": "0.0.18",
   "description": "Communication in microservices",
   "main": "build/index.js",
   "scripts": {
