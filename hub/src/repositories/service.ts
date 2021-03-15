@@ -1,3 +1,4 @@
+import { features } from "node:process";
 import { Connection, getConnection } from "typeorm";
 import { Feature } from "../entities/feature";
 import { Service } from "../entities/service";
@@ -57,4 +58,9 @@ export const getAllFeatures = async (db: Connection, name: string) => {
   return (
     await db.getRepository(Feature).find({ service: service, isActive: true })
   ).map((elem) => elem.name);
+};
+
+export const getByFeature = async (db: Connection, feature: string) => {
+  const f = await db.getRepository(Feature).findOne({ name: feature });
+  return f?.service.name;
 };

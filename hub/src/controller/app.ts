@@ -4,6 +4,7 @@ import {
   registerService,
   getAllServices,
   getAllFeatures,
+  getByFeature,
 } from "../repositories/service";
 import {
   IFeaturesBody,
@@ -54,4 +55,14 @@ export const getFeatures = async (
       body: "Wrong service",
     };
   }
+};
+
+export const getServiceByFeatureName = async (
+  req: Request
+): Promise<IResponse<string>> => {
+  const result = (await getByFeature(
+    getConnection(),
+    req.params.featureName
+  )) as string;
+  return { status: 200, body: result };
 };

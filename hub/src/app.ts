@@ -14,6 +14,7 @@ app.use(bp.json());
 app.post("/register/:id", handle(appController.register));
 app.get("/services", handle(appController.getServices));
 app.get("/features/:name", handle(appController.getFeatures));
+app.get("/service/:featureName", handle(appController.getServiceByFeatureName));
 
 initializeDatabase().then(() => {
   logger(LogTypes.INFO, "Database initilized");

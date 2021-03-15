@@ -24,7 +24,7 @@ export class Feature {
   @Column({ default: false })
   isActive: boolean;
 
-  @ManyToOne(() => Service)
+  @ManyToOne(() => Service, { eager: true })
   @JoinColumn()
   service: Service;
 }
