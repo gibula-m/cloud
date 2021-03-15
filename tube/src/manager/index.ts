@@ -21,11 +21,12 @@ export default class Tube {
   async init() {
     this.connection = await amqp.connect(this.url);
     this.channel = await this.connection.createConfirmChannel();
+    this.queue = await this.channel!.assertQueue(this.sn);
   }
   async publish(msg: Payload) {
     const data = { data: msg, correlationId: uuidv4() };
     const queue = await axios.get(this.hub.url + "service/" + msg.command);
-    this.queue = await this.channel!.assertQueue(this.sn);
+
     this.channel?.sendToQueue(queue.data, Buffer.from(JSON.stringify(data)));
     return await new Promise((resolve) => {
       this.channel?.consume(this.sn, (msg: ConsumeMessage | null) => {

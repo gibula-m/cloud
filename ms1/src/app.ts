@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { logger, LogTypes } from "./util/logger";
-import Tube, { Hub, PingPongPayload } from "@bakkchos/tube";
+import Tube, { Hub, Payload, PingPongPayload } from "@bakkchos/tube";
 import map from "./services";
 dotenv.config();
 logger(LogTypes.INFO, process.env.APP_NAME!);
@@ -13,15 +13,12 @@ const tube = new Tube(
 tube.init().then(() => {
   logger(LogTypes.DEBUG, "AMQP Initialized");
 
-  const payload: PingPongPayload = {
-    command: "HELLO",
-    ping: true,
+  const payload: Payload = {
+    command: "HELLO2",
   };
-
-  tube.publish(payload).then((result) => {
-    console.log(result);
+  tube.publish(payload).then((res) => {
+    console.log(res);
   });
-
   hub.register(map).then((res) => {
     logger(LogTypes.INFO, "Service registred");
     logger(LogTypes.DEBUG, JSON.stringify(res));
