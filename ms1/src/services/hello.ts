@@ -1,3 +1,3 @@
 export const hello = () => {
-  console.log("HELLO SERVICE");
+  console.log("SERVICE");
 };
