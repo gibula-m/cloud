@@ -1,6 +1,4 @@
-import { Message } from "../package/modules/transport/amqp";
-
-export const hello = (msg: Message) => {
+export const hello = () => {
   console.log("HELLo");
 
   return "test";

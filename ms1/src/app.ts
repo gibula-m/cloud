@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
-import bakkchos from "./package/index";
-import { AMQPTransport } from "./package/modules/transport/amqp";
+import bakkchos from "@bakkchos/tube";
+import AMQPTransport from "@bakkchos/tube";
 import { hello } from "./services/hello";
 dotenv.config();
 
