@@ -10,9 +10,9 @@ export class Bakkchos {
     this.map.set(command, action);
   }
   start() {
-    //consume
+    this.transport.consume(this.map);
   }
   publish(msg: Message) {
-    this.transport.send(msg);
+    this.transport.send("", msg);
   }
 }

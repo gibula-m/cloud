@@ -2,6 +2,7 @@ import amqp, { Channel, Connection, ConsumeMessage } from "amqplib";
 export interface Message {
   command: string;
   msg: string;
+  from: string;
 }
 export class AMQPTransport {
   private connection: Connection | null = null;
@@ -14,8 +15,29 @@ export class AMQPTransport {
     this.queue = options.client;
     this.channel.assertQueue(this.queue);
   }
-  async send(msg: Message) {
-    this.channel!.sendToQueue(this.queue as string, Buffer.from(msg.msg));
+  async send(to: string, msg: Message) {
+    this.channel!.sendToQueue(to as string, Buffer.from(msg.msg));
+  }
+
+  consume(map: Map<string, Function>) {
+    this.channel?.consume(this.queue!, async (msg: ConsumeMessage | null) => {
+      if (msg) {
+        const data: Message = JSON.parse(msg?.content.toString());
+        const method = map.get(data.command);
+        if (method) {
+          const result = await method(data.msg);
+          const msgBack: Message = {
+            command: data.command,
+            from: data.from,
+            msg: result,
+          };
+          this.send(data.from, msgBack);
+          console.log("Response sent");
+        } else console.log("METHOD NOT IMPLEMENTED");
+      }
+
+      this.channel?.ack(msg!);
+    });
   }
 }
 
