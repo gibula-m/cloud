@@ -1,4 +1,6 @@
 import amqp, { Channel, Connection, ConsumeMessage } from "amqplib";
+import { resolve } from "node:path";
+import redis, { RedisClient } from "redis";
 export interface Message {
   command: string;
   msg: string;
@@ -8,15 +10,29 @@ export class AMQPTransport {
   private connection: Connection | null = null;
   private channel: Channel | null = null;
   private queue: string | null = null;
-  constructor() {}
+
+  private commandsMap = new Map<string, string>();
+  private redisClient: RedisClient | null;
+
+  constructor() {
+    this.redisClient = redis.createClient();
+  }
   async init(options: AMQPTransportOptions) {
     this.connection = await amqp.connect("amqp://" + options.node);
     this.channel = await this.connection.createChannel();
     this.queue = options.client;
     this.channel.assertQueue(this.queue);
   }
-  async send(to: string, msg: Message) {
-    this.channel!.sendToQueue(to as string, Buffer.from(msg.msg));
+  async send(msg: Message) {
+    const dst = await new Promise<string | null>((resolve) => {
+      this.redisClient?.get(msg.command, (err, rep) => {
+        resolve(rep);
+      });
+    });
+    console.log("SENDT TO : " + dst);
+    if (dst) {
+      this.channel!.sendToQueue(dst, Buffer.from(JSON.stringify(msg)));
+    }
   }
 
   consume(map: Map<string, Function>) {
@@ -31,13 +47,16 @@ export class AMQPTransport {
             from: data.from,
             msg: result,
           };
-          this.send(data.from, msgBack);
+          this.send(msgBack);
           console.log("Response sent");
         } else console.log("METHOD NOT IMPLEMENTED");
       }
 
       this.channel?.ack(msg!);
     });
+  }
+  register(command: string) {
+    this.redisClient?.set(command, this.queue!);
   }
 }
 

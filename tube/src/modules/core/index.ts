@@ -8,11 +8,12 @@ export class Bakkchos {
   }
   register(command: string, action: Function) {
     this.map.set(command, action);
+    this.transport.register(command);
   }
   start() {
     this.transport.consume(this.map);
   }
   publish(msg: Message) {
-    this.transport.send("", msg);
+    this.transport.send(msg);
   }
 }
