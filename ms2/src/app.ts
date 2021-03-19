@@ -10,9 +10,8 @@ transport
     client: process.env.APP_NAME!,
     node: "localhost:5672",
   })
-  .then(async () => {
+  .then(() => {
     const app = bakkchos(transport);
-    app.register("hello", hello);
-    const data = await transport.send("hello2", { test: "TEST" });
+    app.register("hello2", hello);
     app.start();
   });
