@@ -13,11 +13,10 @@ export class AMQPTransport {
   private channel: Channel | null = null;
   private queue: string | null = null;
 
-  private commandsMap = new Map<string, string>();
   private redisClient: RedisClient | null;
 
-  constructor() {
-    this.redisClient = redis.createClient();
+  constructor(host: string) {
+    this.redisClient = redis.createClient({ host: host });
   }
   async init(options: AMQPTransportOptions) {
     this.connection = await amqp.connect("amqp://" + options.node);
