@@ -1,10 +1,12 @@
 import amqp, { Channel, Connection, ConsumeMessage } from "amqplib";
-import { resolve } from "node:path";
 import redis, { RedisClient } from "redis";
+import { v4 as uuidv4 } from "uuid";
 export interface Message {
   command: string;
-  msg: string;
+  msg: MessageData;
   from: string;
+  type: "REQ" | "RES";
+  correlationId: string;
 }
 export class AMQPTransport {
   private connection: Connection | null = null;
@@ -23,22 +25,40 @@ export class AMQPTransport {
     this.queue = options.client;
     this.channel.assertQueue(this.queue);
   }
-  async send(msg: Message) {
+  async send(command: string, message: MessageData) {
+    const corId = uuidv4();
+    const msg: Message = {
+      command: command,
+      from: this.queue!,
+      msg: message,
+      type: "REQ",
+      correlationId: corId,
+    };
     const dst = await new Promise<string | null>((resolve) => {
-      this.redisClient?.get(msg.command, (err, rep) => {
+      this.redisClient?.get(command, (err, rep) => {
         resolve(rep);
       });
     });
-    console.log("SENDT TO : " + dst);
     if (dst) {
       this.channel!.sendToQueue(dst, Buffer.from(JSON.stringify(msg)));
     }
+    return new Promise((resolve) => {
+      this.channel?.consume(this.queue!, (msg: ConsumeMessage | null) => {
+        if (msg) {
+          const data: Message = JSON.parse(msg.content.toString());
+          if (data.correlationId === corId && data.type === "RES") {
+            resolve(data.msg);
+          }
+        }
+      });
+    });
   }
 
   consume(map: Map<string, Function>) {
     this.channel?.consume(this.queue!, async (msg: ConsumeMessage | null) => {
       if (msg) {
         const data: Message = JSON.parse(msg?.content.toString());
+
         const method = map.get(data.command);
         if (method) {
           const result = await method(data.msg);
@@ -46,8 +66,10 @@ export class AMQPTransport {
             command: data.command,
             from: data.from,
             msg: result,
+            correlationId: data.correlationId,
+            type: "RES",
           };
-          this.send(msgBack);
+          this.send(data.from, msgBack);
           console.log("Response sent");
         } else console.log("METHOD NOT IMPLEMENTED");
       }
@@ -64,3 +86,5 @@ export interface AMQPTransportOptions {
   client: string;
   node: string;
 }
+
+export interface MessageData {}

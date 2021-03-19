@@ -21,6 +21,19 @@ services:
       - "6379:6379"
     volumes:
       - "redis_data:/bitnami/redis/data"
+  verdaccio:
+    image: verdaccio/verdaccio
+    container_name: "verdaccio"
+    networks:
+      - rabbitmq_go_net
+    environment:
+      - VERDACCIO_PORT=4873
+    ports:
+      - "4873:4873"
+    volumes:
+      - "./storage:/verdaccio/storage"
+      - "./config:/verdaccio/conf"
+      - "./plugins:/verdaccio/plugins"  
 
 networks:
   rabbitmq_go_net:

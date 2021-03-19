@@ -1,4 +1,4 @@
-import { AMQPTransport, Message } from "../transport/amqp";
+import { AMQPTransport, MessageData } from "../transport/amqp";
 
 export class Bakkchos {
   private transport: AMQPTransport;
@@ -13,7 +13,7 @@ export class Bakkchos {
   start() {
     this.transport.consume(this.map);
   }
-  publish(msg: Message) {
-    this.transport.send(msg);
+  publish(command: string, msg: MessageData) {
+    this.transport.send(command, msg);
   }
 }

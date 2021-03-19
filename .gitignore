@@ -13,3 +13,6 @@ ms2/package-lock.json
 hub/build/
 hub/node_modules/**/*
 hub/package-lock.json
+config/**/*
+plugins/**/*
+storage/**/*
